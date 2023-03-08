@@ -1,0 +1,65 @@
+version: '2'
+
+
+services:
+  app-lb-round-robin:
+    build:
+      context: .
+      dockerfile: DockerfileLbRoundRobin
+    container_name: "app-lb-round-robin"
+    ports:
+      - "8087:6000"
+    depends_on:
+      - log-service-1
+      - log-service-2
+      - log-service-3
+  log-service-1:
+    build:
+      context: .
+      dockerfile: DockerfileLogService
+    container_name: "log-service-1"
+    depends_on:
+      - mongodb
+    environment:
+      - SERVER_NAME=log-service-1
+      - MONGO_URI=mongodb://mongodb:27017/myMongoDb
+    ports:
+      - "35001:6000"
+  log-service-2:
+    build:
+      context: .
+      dockerfile: DockerfileLogService
+    container_name: "log-service-2"
+    depends_on:
+      - mongodb
+    environment:
+      - SERVER_NAME=log-service-2
+      - MONGO_URI=mongodb://mongodb:27017/myMongoDb
+    ports:
+      - "35002:6000"
+  log-service-3:
+    build:
+      context: .
+      dockerfile: DockerfileLogService
+    container_name: "log-service-3"
+    depends_on:
+      - mongodb
+    environment:
+      - SERVER_NAME=log-service-3
+      - MONGO_URI=mongodb://mongodb:27017/myMongoDb
+    ports:
+      - "35003:6000"
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    volumes:
+      - mongodb:/data/db
+      - mongodb_config:/data/configdb
+    environment:
+      MONGO_INITDB_DATABASE: myMongoDb
+    ports:
+      - 27017:27017
+    command: mongod
+volumes:
+  mongodb:
+  mongodb_config:
